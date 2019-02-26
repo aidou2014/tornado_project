@@ -14,6 +14,7 @@ class Application(tornado.web.Application):
         handlers = [
             (r"/", main.IndexHandler),
             (r"/explore", main.ExploreHandler),
+            (r"/upload", main.UploadHandler),
             (r"/post/(?P<post_id>[0-9]+)", main.PostHandler),
         ]
         settings = dict(
