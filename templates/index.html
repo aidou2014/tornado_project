@@ -7,7 +7,10 @@
 I am index page<br>
 
 {% for img_path in imgs %}
-<img src="/{{ img_path }}" width="500px"/>
+{#    <img src="/{{ static_url(img_path.image_url) }}" width="300px"/>#}  <!--第一种，需要路径-->
+{#    <img src="/{{ img_path[0]) }}" width="300px"/>#}   <!--第二种，yield返回，一次返回一张-->
+<img src="/{{ img_path.image_url }}" width="300px"/>  <!--第三种，两次查询数据库后返回，返回列表-->
 {% end %}
+
 
 {% end %}

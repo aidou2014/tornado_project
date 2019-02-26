@@ -35,6 +35,6 @@ def make_thumb(save_to_path):
     im = Image.open(save_to_path)
     im.thumbnail(size)
     name, ext = os.path.splitext(os.path.basename(save_to_path))
-    im.save('static/upload/thumb/thumb_{}_{}x{}{}'.format(
-        name, *size, ext
-    ))
+    thumb_path_picture = 'static/upload/thumb/thumb_{}_{}x{}{}'.format(name, *size, ext)
+    im.save(thumb_path_picture)
+    return thumb_path_picture

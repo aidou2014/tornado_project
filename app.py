@@ -1,6 +1,7 @@
 import tornado.ioloop
 import tornado.web
 import tornado.options
+from tornado import httpserver
 from tornado.options import define, options
 # from handlers.main import IndexHandler, ExploreHandler, PostHandler
 from handlers import main, authentication
@@ -47,6 +48,7 @@ application = Application()
 
 if __name__ == "__main__":
     tornado.options.parse_command_line()
-    application.listen(options.port)
+    http_server = httpserver.HTTPServer(application)
+    http_server.listen(options.port)  # 加入httpserver非阻塞服务器
     print('Server start on port {}'.format(options.port))
     tornado.ioloop.IOLoop.current().start()

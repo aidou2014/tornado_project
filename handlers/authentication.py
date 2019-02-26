@@ -17,8 +17,10 @@ class LoginHandler(AuthBaseHandler):
 
         if login_verify(username, password):
             self.session.set('USER', username)
-            self.redirect(next_url)
-            self.write(username + 'and' + password)
+            if next_url:
+                self.redirect(next_url)
+            else:
+                self.redirect('/')
 
         else:
             self.render('login.html', next_url=next_url)

@@ -7,7 +7,7 @@
 I am explore page<br>
 
 {% for img_path in imgs %}
-<img src="/{{ img_path }}"/>
+<img src="/{{ (img_path.thumb_url) }}"/>
 {% end %}
 
 {% end %}
