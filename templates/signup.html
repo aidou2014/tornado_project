@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}signup page{% end %}
+
+{% block content %}
+
+I am signup  page<br>
+
+{% if msg %}
+<p>{{ msg }}</p>
+{% end %}
+
+<form action="/signup" enctype="multipart/form-data" method="post">
+    <div>
+        Username
+        <input name="username" type="text" required="">
+    </div>
+    <div>
+        Password
+        <input name="password1" type="password" required="">
+    </div>
+    <div>
+        Password confirmation
+        <input name="password2" type="password" required="">
+    </div>
+    <button>注册</button>
+    <div>
+        已有账号请<a href="/login">登录</a>
+    </div>
+
+
+</form>
+
+<br>{% end %}

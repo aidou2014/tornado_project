@@ -1,5 +1,5 @@
 import hashlib
-
+from models.account import User
 
 def hashed(text):
     """
@@ -7,7 +7,7 @@ def hashed(text):
     :param text: 需要加密的字符串
     :return: 加密的md5串
     """
-    return hashlib.md5(text.encode()).digest()
+    return hashlib.md5(text.encode()).hexdigest()
 
 
 users = {
@@ -28,3 +28,10 @@ def login_verify(username, password):
         return is_match
     else:
         return False
+
+
+def register(username, password):
+    if User.is_exist(username):
+        return 'user is existed'
+    else:
+        return User.add_user(username, hashed(password))
