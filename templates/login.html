@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}login page{% end %}
+
+{% block content %}
+
+I am post page<br>
+{% module xsrf_form_html() %}
+<form method="post" action="/login?next={{ next_url }}" enctype="multipart/form-data">
+    <div>
+        Username
+        <input name="username" type="text" required="">
+    </div>
+    <div>
+        Password
+        <input name="password" type="password" required="">
+    </div>
+    <button>Login</button>
+
+</form>
+
+<br>{% end %}

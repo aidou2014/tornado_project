@@ -1,16 +1,29 @@
 import tornado.web
+from pycket.session import SessionMixin
 from utils.process_photo import get_imgs, save_upload_picture, make_thumb
 
 
-class IndexHandler(tornado.web.RequestHandler):
+class AuthBaseHandler(tornado.web.RequestHandler, SessionMixin):
+    """使用pycket的session来验证用户"""
+
+    def get_current_user(self):
+        current_user = self.session.get('USER')
+        if current_user:
+            return current_user
+        return None
+
+
+class IndexHandler(AuthBaseHandler):
     """首页，说管子的用户图片流"""
     def get(self):
         imgs = get_imgs('static/upload')
         self.render('index.html', imgs=imgs)
 
 
-class ExploreHandler(tornado.web.RequestHandler):
+class ExploreHandler(AuthBaseHandler):
     """发现货最近上传的图片页面"""
+
+    @tornado.web.authenticated
     def get(self):
         imgs = get_imgs('static/upload/thumb')
         self.render('explore.html', imgs=imgs)
