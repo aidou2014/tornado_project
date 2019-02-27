@@ -5,11 +5,22 @@
 {% block content %}
 
 I am index page<br>
+<a href="/explore">
+    <div>explore</div>
+</a>
+<a href="/upload">
+    <div>upload</div>
+</a>
+<a href="/login">
+    <div>login</div>
+</a>
 
-{% for img_path in imgs %}
-{#    <img src="/{{ static_url(img_path.image_url) }}" width="300px"/>#}  <!--第一种，需要路径-->
-{#    <img src="/{{ img_path[0]) }}" width="300px"/>#}   <!--第二种，yield返回，一次返回一张-->
-<img src="/{{ img_path.image_url }}" width="300px"/>  <!--第三种，两次查询数据库后返回，返回列表-->
+{% for p in posts %}
+{#        <p> 上传用户：{{ p.post_user.username }} </p>#}
+<a href="/post/{{ p.id }}">
+    <img src="{{ static_url(p.image_url) }}" width="300px"/>
+</a>
+
 {% end %}
 
 {% end %}

@@ -96,11 +96,29 @@ class PostPicture(Base):
         session.commit()
 
     @classmethod
-    def query_pictures(cls, user_id):
+    def query_pictures_for_one(cls, user_id):
         """
         查询用户已经上传的图片
         :param user_id:当前用户的id
         :return:包含大图和缩略图的元组，所有元组合成一个列表
         """
         pictures_info = session.query(PostPicture.image_url, PostPicture.thumb_url).filter_by(user_id=user_id).all()
+        return pictures_info
+
+    @classmethod
+    def query_all_pictures(self):
+        """
+        查询所有用户已经上传的图片
+        :return: 所有查询出来的图像对象
+        """
+        pictures_info = session.query(PostPicture).all()
+        return pictures_info
+
+    @classmethod
+    def query_pictures_use_id(self, id):
+        """
+        查询所有用户已经上传的图片
+        :return: 所有查询出来的图像对象
+        """
+        pictures_info = session.query(PostPicture).filter_by(id=id).first()
         return pictures_info

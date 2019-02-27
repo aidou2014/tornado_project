@@ -4,8 +4,10 @@
 
 {% block content %}
 
-I am post {{ post_id }} page<br>
+I am post {{ post.id }} page<br>
 
-<img src="/static/images/{{ post_id }}.jpg" width="200px"/>
+<img src="{{ static_url(post.image_url) }}" width="400px"/>
+<p> 上传用户：{{ post.post_user.username }} </p>
+<p> 上传时间：{{ post.upload_time }} </p>
 
 <br>{% end %}

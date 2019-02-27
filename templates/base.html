@@ -4,9 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Tornado title{% end %}</title>
+    <link rel="short icon" href="{{ static_url('images/favicon.ico') }}">
+    <style type="text/css">{% block style %}liang{% end %}</style>
 </head>
 <body>
 {% module xsrf_form_html() %}
+{#{% if current_user %}#}
+{#    <p>当前用户：{{ current_user }}</p>#}
+{#{% end %}#}
     {% block content %}Body of base{% end %}
 </body>
 </html>

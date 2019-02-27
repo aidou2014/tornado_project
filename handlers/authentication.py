@@ -46,7 +46,7 @@ class SignupHandler(AuthBaseHandler):
                 msg = register(username, password1)
                 if msg == True:
                     self.session.set('USER', username)
-                    self.redirect('/explore')
+                    self.redirect('/login')
                 else:
                     self.render('signup.html', msg=msg)
             else:

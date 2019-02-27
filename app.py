@@ -27,6 +27,7 @@ class Application(tornado.web.Application):
             # static_url_prefix = '/pics/'
             cookie_secret='qwe123',
             login_url='/login',
+            autoescape=None,
             pycket={
                 'engine': 'redis',
                 'storage': {

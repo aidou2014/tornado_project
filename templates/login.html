@@ -2,25 +2,66 @@
 
 {% block title %}login page{% end %}
 
+{% block style %}
+*{padding: 0; margin:0;}
+html{height: 100%;}
+body{
+height: 100%;
+background:url(/static/images/bg.png) no-repeat 0 0/100% 100%;
+overflow: hidden;
+}
+form{
+position: absolute;
+left: 50%;
+top: 45%;
+width:300px;
+border: 1px solid #999;
+margin-left: -171px;
+margin-top: -171px;
+background-color: white;
+line-height: 40px;
+padding:20px;
+text-align: center;
+}
+input{
+width: 272px;
+height: 35px;
+border: 2px solid #eee;
+padding: 8px;
+margin-bottom: 15px;
+border-radius: 3px;
+}
+button{
+width: 288px;
+height: 35px;
+border: 2px solid #1b6bb0;
+background-color: #0c6595;
+border-radius: 5px;
+}
+div{
+font-size: 16px;
+font-family: '微软雅黑'
+}
+a{
+display: inline-block;
+text-decoration: none;
+margin: 0 5px;
+width: 33px;
+}
+{% end %}
+
 {% block content %}
 
 I am post page<br>
 
 <form method="post" action="/login?next={{ next_url }}" enctype="multipart/form-data">
-    <div>
-        Username
-        <input name="username" type="text" required="">
-    </div>
-    <div>
-        Password
-        <input name="password" type="password" required="">
-    </div>
+    <h2 class="form-signin-heading">Hi!欢迎登录账户</h2>
+    <input name="username" type="text" required="" placeholder="Username"><br>
+    <input name="password" type="password" required="" placeholder="Password"> <br>
     {#    <input name="next" type="hidden" value="{{ next_url }}">#}
     <button>Login</button>
-    <div>
-        还没账号，去<a href="/signup">注册</a>一个
-    </div>
+    <button>还没账号，去<a href="/signup">注册</a>一个</button>
 
 </form>
 
-<br>{% end %}
+{% end %}
