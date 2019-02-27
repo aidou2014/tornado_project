@@ -1,9 +1,8 @@
 import tornado.web
 from pycket.session import SessionMixin
-from utils.process_photo import get_imgs, save_upload_picture, make_thumb
+from utils.process_photo import UploadProcess
 from models.account import PostPicture, User
 from utils.auth import show
-import os
 
 
 class AuthBaseHandler(tornado.web.RequestHandler, SessionMixin):
@@ -58,18 +57,12 @@ class UploadHandler(AuthBaseHandler):
         # 格式为{'filename': 上传文件名称，'body': 文件二进制数据,content_type': 文件类型}
         if img_list:
             for upload_img in img_list:
-                # if img_list:
-                #     upload_img = img_list[0]  # 循环方式更加完美
-                save_to_path = save_upload_picture(upload_img)
-                thumb_url = make_thumb(save_to_path)
-
-                # 去除路径中的static/,便于在html中使用static_url方法
-                # save_to_path = os.path.relpath(save_to_path,'static')  # 以static为参照，执行完成后，为'upload/...'
-                # thumb_url = os.path.relpath(save_to_path, 'static')
+                upload_obj = UploadProcess(self.settings['static_path'], upload_img['filename'])
+                upload_obj.save_to_local(upload_img['body'])
 
                 # 需要查询出user_id 是个问题
                 user = User.query_User(self.current_user)
-                PostPicture.post_pictures(save_to_path, thumb_url, user_id=user.id)
+                PostPicture.post_pictures(upload_obj.make_image_url, upload_obj.make_thumb_url, user_id=user.id)
 
             self.redirect('/explore')
         else:

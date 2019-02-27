@@ -1,40 +1,46 @@
 import glob  # 图片展示
 import os
-
+from uuid import uuid4
 from PIL import Image
 
 
-def get_imgs(path):
-    """
-    用于获取特定目录的文件列表
-    :return: 一个带路径的文件列表
-    """
-    return glob.glob('{}/*.jpg'.format(path))
+class UploadProcess(object):
+    UPLOAD_DIR = 'upload'
+    SIZE = (200, 200)
+    THUMB_DIR = 'thumb'
 
+    def __init__(self, static_path, filename):
+        self.static_path = static_path
+        self.origin_name = filename
+        self.new_name = self.get_new_name
 
-def save_upload_picture(upload_img):
-    """
-    处理上传文件的保存工作
-    :param upload_img: 单个文件字典
-    :return: 返回路径save_to_path
-    """
-    save_to_path = 'static/upload/{}'.format(upload_img['filename'])
-    with open(save_to_path, 'wb') as f:
-        f.write(upload_img['body'])
-    return save_to_path
+    @property
+    def get_new_name(self):
+        """生成唯一的图片名"""
+        _, ext = os.path.splitext(self.origin_name)
+        return uuid4().hex + ext
 
+    @property
+    def upload_local_path(self):
+        return os.path.join(self.static_path, self.make_image_url)
 
-def make_thumb(save_to_path):
-    """
-    制作上传文件的缩略图
-    :param save_to_path: 文件路径参数
-    :param thumb_name: 缩略图名称
-    :return: None
-    """
-    size = (200, 200)
-    im = Image.open(save_to_path)
-    im.thumbnail(size)
-    name, ext = os.path.splitext(os.path.basename(save_to_path))
-    thumb_path_picture = 'static/upload/thumb/thumb_{}_{}x{}{}'.format(name, *size, ext)
-    im.save(thumb_path_picture)
-    return thumb_path_picture
+    def save_to_local(self, content):
+        # save_to_path = 'static/upload/{}'.format(upload_img['filename'])
+        with open(self.upload_local_path, 'wb') as f:
+            f.write(content)
+
+    @property
+    def make_image_url(self):
+        return os.path.join(self.UPLOAD_DIR, self.new_name)
+
+    def make_thumb(self):
+        im = Image.open(self.upload_local_path)
+        im.thumbnail(self.SIZE)
+        save_thumb_path = os.path.join(self.static_path, self.make_thumb_url)
+        im.save(save_thumb_path)
+
+    @property
+    def make_thumb_url(self):
+        name, ext = os.path.splitext(self.new_name)
+        thumb_name = '{}_{}x{}{}'.format(name, *self.SIZE, ext)
+        return os.path.join(self.UPLOAD_DIR, self.THUMB_DIR, thumb_name)

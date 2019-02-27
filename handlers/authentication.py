@@ -7,7 +7,7 @@ class LoginHandler(AuthBaseHandler):
     """登录页面和处理登录请求"""
 
     def get(self, *args, **kwargs):
-        next_url = self.get_argument('next', '')
+        next_url = self.get_argument('next', '/explore')
         self.render('login.html', next_url=next_url)
 
     def post(self, *args, **kwargs):
@@ -17,11 +17,7 @@ class LoginHandler(AuthBaseHandler):
 
         if login_verify(username, password):
             self.session.set('USER', username)
-            if next_url:
-                self.redirect(next_url)
-            else:
-                self.redirect('/')
-
+            self.redirect(next_url)
         else:
             self.render('login.html', next_url=next_url)
 
@@ -50,7 +46,7 @@ class SignupHandler(AuthBaseHandler):
                 msg = register(username, password1)
                 if msg == True:
                     self.session.set('USER', username)
-                    self.redirect('/')
+                    self.redirect('/explore')
                 else:
                     self.render('signup.html', msg=msg)
             else:
