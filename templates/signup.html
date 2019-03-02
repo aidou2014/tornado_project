@@ -1,74 +1,50 @@
 {% extends 'base.html' %}
 
-{% block title %}signup page{% end %}
+{% block title %}注册{% end %}
 
-{% block style %}
-*{padding: 0; margin:0;}
-html{height: 100%;}
-body{
-height: 100%;
-background:url(/static/images/bg.png) no-repeat 0 0/100% 100%;
-overflow: hidden;
-}
-form{
-position: absolute;
-left: 50%;
-top: 45%;
-width:300px;
-border: 1px solid #999;
-margin-left: -171px;
-margin-top: -171px;
-background-color: white;
-line-height: 40px;
-padding:20px;
-text-align: center;
-}
-input{
-width: 272px;
-height: 35px;
-border: 2px solid #eee;
-padding: 8px;
-margin-bottom: 15px;
-border-radius: 3px;
-}
-button{
-width: 288px;
-height: 35px;
-border: 2px solid #1b6bb0;
-background-color: #0c6595;
-border-radius: 5px;
-}
-div{
-font-size: 16px;
-font-family: '微软雅黑'
-}
-a{
-display: inline-block;
-text-decoration: none;
-margin: 0 5px;
-width: 33px;
-}
+{% block dir %}
 {% end %}
 
+
 {% block content %}
-
-I am signup  page<br>
-
 {% if msg %}
 <p>{{ msg }}</p>
 {% end %}
-
-<form action="/signup" enctype="multipart/form-data" method="post">
-    <h2 class="form-signin-heading">Hi!欢迎加入我们</h2>
-    <input name="username" type="text" required="" placeholder="Username"><br>
-    <input name="password1" type="password" required="" placeholder="Password"><br>
-    <input name="password2" type="password" required="" placeholder="Password confirmation"><br>
-    <button>注册
-        <tton>
-            <button>
-        已有账号请<a href="/login">登录</a>
-            </button>
-
-</form>
-
+<div class="row justify-content-center">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">
+        <form method="post" action="/signup" enctype="multipart/form-data" class="text-center" style="margin-top: 55%">
+            <h3 class="form-signin-heading">Hi!欢迎加入我们</h3>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">
+                    <i class="fa fa-user-o" aria-hidden="true"></i>
+                </span>
+                </div>
+                <input name="username" required="" type="text" class="form-control" placeholder="Username"
+                       aria-label="Username" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">
+                    <i class="fa fa-key" aria-hidden="true"></i>
+                </span>
+                </div>
+                <input name="password1" type="password" required="" class="form-control" placeholder="Password"
+                       aria-label="Password" aria-describedby="basic-addon1">
+            </div>
+            <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">
+                    <i class="fa fa-key" aria-hidden="true"></i>
+                </span>
+                </div>
+                <input name="password2" type="password" required="" class="form-control"
+                       placeholder="Password confirmation" aria-label="Password" aria-describedby="basic-addon1">
+            </div>
+            <button class="btn btn-light btn-block"><span class="text-dark">register</span></button>
+            <button class="btn btn-light btn-block">已有账号请<a href="/login">登录</a></button>
+        </form>
+    </div>
+</div>
 {% end %}
+

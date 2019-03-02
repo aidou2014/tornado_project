@@ -1,18 +1,45 @@
 {% extends 'base.html' %}
 
-{% block title %}explore page{% end %}
+{% block title %}发现{% end %}
 
 {% block content %}
+<div class="row">
+    <div class="col-12 col-md-9 text-center ">
+        <div><h4 class="text-muted">发现图片</h4></div>
+        {% for p in posts %}
+        <div class="col-5 col-sm-5 col-md-3 d-inline-block">
+            <a href="/post/{{ p.id }}">
+                <img class="img-fluid" src="{{ static_url(p.thumb_url) }}">
+            </a>
+            <div>
+                <span><i class="fa fa-user" aria-hidden="true"></i>：{{ p.post_user.username }} </span>
+                <span><a class="text-muted" href="#" name="good"><i
+                        class="fa fa-thumbs-up">{{ p.good_num }}</i></a></span>
+                <span><a class="text-muted" href="#" name="like"><i class="fa fa-heart">{{ p.like_num }}</i></a></span>
+            </div>
+            {#            <a href="#" class="btn btn-primary">Go somewhere</a>#}
+        </div>
+        {% end %}
+    </div>
 
-I am explore page<br>
+    <div class="col-12 col-md-3 text-center">
+        <div><h4 class="text-muted">人气最佳的图片</h4></div>
+        {% for p in good_post %}
+        <div class="col-5 col-sm-5 d-inline-block col-md-12">
+            <a href="/post/{{ p.id }}">
+                <img class="img-fluid" src="{{ static_url(p.thumb_url) }}">
+            </a>
+            <div>
+                <span><i class="fa fa-user" aria-hidden="true"></i>：{{ p.post_user.username }} </span>
+                <span><a class="text-muted" href="#" name="good"><i
+                        class="fa fa-thumbs-up">{{ p.good_num }}</i></a></span>
+                <span><a class="text-muted" href="#" name="like"><i class="fa fa-heart">{{ p.like_num }}</i></a></span>
+            </div>
+        </div>
+        {#            <a href="#" class="btn btn-primary">Go somewhere</a>#}
+        {% end %}
+    </div>
 
-{% for p in posts %}
-<a href="/post/{{ p.id }}">
-    <img src="{{ static_url(p.thumb_url) }}"/>
-</a>
-<p> 上传用户：{{ p.post_user.username }} </p>
-{#    <p> 上传时间：{{ p.upload_time }} </p>#}
-
-{% end %}
+</div>
 
 {% end %}

@@ -3,12 +3,30 @@
 {% block title %}upload page{% end %}
 
 {% block content %}
-
-upload files<br>
-<form action="/upload" method="post" enctype="multipart/form-data">
-    <input type="file" name="picture" multiple="multiple">
-    <input type="submit">
-
-</form>
-
-<br>{% end %}
+<div class="row justify-content-center">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">
+        <form action="/upload" method="post" enctype="multipart/form-data" style="margin-top: 40%">
+            {#                <h3 class="form-signin-heading">感谢{{ current_user }}分享图片</h3>#}
+            {#                <input type="file" name="picture" multiple="multiple">#}
+            <div class="form-group">
+                <input type="file" name="picture" multiple="multiple" class="form-control-file" id="File1">
+            </div>
+            <div class="form-group">
+                <select class="form-control" id="Select1">
+                    <option>风景</option>
+                    <option>人物</option>
+                    <option>动漫</option>
+                    <option>手绘</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <textarea class="form-control" id="Textarea1" rows="3"></textarea>
+            </div>
+            <button class="btn btn-light btn-block">
+                <span class="text-dark">分享</span>
+            </button>
+            <button class="btn btn-light btn-block">重置</button>
+        </form>
+    </div>
+</div>
+{% end %}

@@ -4,10 +4,23 @@
 
 {% block content %}
 
-I am post {{ post.id }} page<br>
+<img src="{{ static_url(post.image_url) }}" class="img-fluid"/>
 
-<img src="{{ static_url(post.image_url) }}" width="400px"/>
-<p> 上传用户：{{ post.post_user.username }} </p>
+{% if current_user != post.post_user.username %}
+<p> 上传用户：<a href="/like?name={{ post.post_user.username }}">{{ post.post_user.username }}</a></p>
+{% else %}
+<p></p>
+{% end %}
 <p> 上传时间：{{ post.upload_time }} </p>
+<span><a class="text-muted" href="#" name="good"><i class="fa fa-thumbs-up"></i></a>{{ post.good_num }}</span>
+<span><a class="text-muted" href="#" name="like"><i class="fa fa-heart"></i></a>{{ post.like_num }}</span>
+
+{% if current_user == post.post_user.username %}
+<span><a class="text-muted" href="#" name="like">删除</a></span>
+{% else %}
+<span></span>
+{% end %}
+
+{#<button name="delete">删除</button>#}
 
 <br>{% end %}

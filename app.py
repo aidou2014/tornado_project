@@ -15,10 +15,12 @@ class Application(tornado.web.Application):
             (r"/", main.IndexHandler),
             (r"/explore", main.ExploreHandler),
             (r"/upload", main.UploadHandler),
+            (r"/like", main.UserLikeHandler),
+            (r"/post/(?P<post_id>[0-9]+)", main.PostHandler),
             (r"/login", authentication.LoginHandler),
             (r"/logout", authentication.LogoutHandler),
             (r"/signup", authentication.SignupHandler),
-            (r"/post/(?P<post_id>[0-9]+)", main.PostHandler),
+
         ]
         settings = dict(
             debug=True,

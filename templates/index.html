@@ -1,26 +1,45 @@
 {% extends 'base.html' %}
 
-{% block title %}index page{% end %}
+{% block title %}主页{% end %}
 
 {% block content %}
 
-I am index page<br>
-<a href="/explore">
-    <div>explore</div>
-</a>
-<a href="/upload">
-    <div>upload</div>
-</a>
-<a href="/login">
-    <div>login</div>
-</a>
+<div class="row">
 
-{% for p in posts %}
-{#        <p> 上传用户：{{ p.post_user.username }} </p>#}
-<a href="/post/{{ p.id }}">
-    <img src="{{ static_url(p.image_url) }}" width="300px"/>
-</a>
+    <div class="col-12 col-md-8 text-center">
+        <div><h4 class="text-muted">我的上传</h4></div>
+        {% for p in posts %}
+        <div class="col-5 col-sm-5 col-md-5 d-inline-block">
+            <a href="/post/{{ p.id }}">
+                <img src="{{ static_url(p.image_url) }}" class="img-fluid"/>
+            </a>
+            <div class="text-center">
+                <span><a class="text-muted" href="#" name="good"><i
+                        class="fa fa-thumbs-up"></i>{{ p.good_num }}</a></span>
+                <span><a class="text-muted" href="#" name="like"><i class="fa fa-heart"></i>{{ p.like_num }}</a></span>
+            </div>
+        </div>
+        {% end %}
+    </div>
 
-{% end %}
+    <div class="col-12 col-md-4 text-center">
+        <div><h4 class="text-muted">推荐</h4></div>
+        {% for p in post_for_user %}
+        <div class="col-5 col-sm-5 d-inline-block col-md-12">
+            <a href="/post/{{ p.id }}">
+                <img src="{{ static_url(p.image_url) }}" class="img-fluid"/>
+            </a>
+            <div class="text-center">
+                <span><i class="fa fa-user" aria-hidden="true"></i>：{{ p.post_user.username }} </span>
+                <span><a class="text-muted" href="#" name="good"><i
+                        class="fa fa-thumbs-up"></i>{{ p.good_num }}</a></span>
+                <span><a class="text-muted" href="#" name="like"><i class="fa fa-heart"></i>{{ p.like_num }}</a></span>
+            </div>
+        </div>
+        {% end %}
+    </div>
+
+
+</div>
 
 {% end %}

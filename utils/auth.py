@@ -18,8 +18,12 @@ def login_verify(username, password):
     :return: True or False
     """
     if username and password:
-        is_match = (hashed(password) == User.query_password(username))
-        return is_match
+        user = User.query_User(username)
+        if user:
+            is_match = (hashed(password) == user.password)
+            return is_match
+        else:
+            return None
     else:
         return False
 

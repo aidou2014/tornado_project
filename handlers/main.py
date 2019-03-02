@@ -1,7 +1,8 @@
 import tornado.web
 from pycket.session import SessionMixin
 from utils.process_photo import UploadProcess
-from models.account import PostPicture, User
+from models.account import PostPicture, User, Like
+import random
 from utils.auth import show
 
 
@@ -20,8 +21,10 @@ class IndexHandler(AuthBaseHandler):
 
     @tornado.web.authenticated
     def get(self):
-        posts = User.query_User(self.current_user).post_pictures
-        self.render('index.html', posts=posts)  # 返回所有列表
+        posts = PostPicture.query_pictures_for_one(self.current_user)
+        post_for_user = PostPicture.query_all_pictures(self.current_user)
+        post_5 = random.sample(post_for_user, 6)
+        self.render('index.html', posts=posts, post_for_user=post_5)  # 返回所有列表
         # self.render('index.html', imgs=show(self.current_user))   # yield返回
 
 
@@ -30,16 +33,24 @@ class ExploreHandler(AuthBaseHandler):
 
     @tornado.web.authenticated
     def get(self):
-        posts = PostPicture.query_all_pictures()  # 列表内的元组
-        self.render('explore.html', posts=posts)
+        posts = PostPicture.query_all_pictures(self.current_user)  # 列表内的元组
+        good_post = PostPicture.query_for_good_num()
+        self.render('explore.html', posts=posts, good_post=good_post)
 
 
-class PostHandler(tornado.web.RequestHandler):
+class PostHandler(AuthBaseHandler):
     """单个图片详情页面"""
 
+    @tornado.web.authenticated
     def get(self, post_id):
         post = PostPicture.query_pictures_use_id(post_id)
         self.render('post.html', post=post)
+
+    @tornado.web.authenticated
+    def post(self, *args, **kwargs):
+        is_delete = self.get_argument('delete', '')
+        if is_delete:
+            pass
 
 
 class UploadHandler(AuthBaseHandler):
@@ -49,6 +60,7 @@ class UploadHandler(AuthBaseHandler):
     def get(self, *args, **kwargs):
         self.render('upload.html')
 
+    @tornado.web.authenticated
     def post(self, *args, **kwargs):
         img_list = self.request.files.get('picture', [])
         # """存放文件的列表，每一个文件都是一个字典形式"""
@@ -67,3 +79,17 @@ class UploadHandler(AuthBaseHandler):
             self.redirect('/')
         else:
             self.render('upload.html')
+
+
+class UserLikeHandler(AuthBaseHandler):
+
+    @tornado.web.authenticated
+    def get(self, *args, **kwargs):
+        name = self.get_argument('name', '')
+        if not name:
+            name = self.current_user
+            upload_posts = []
+        else:
+            upload_posts = PostPicture.query_pictures_for_one(name)
+        like_posts = Like.query_one_like(name)
+        self.render('like.html', posts=like_posts, name=name, upload_posts=upload_posts)

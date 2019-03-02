@@ -1,8 +1,9 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Boolean, Text, desc
+from models.db import Base, session
 from datetime import datetime
-from .db import Base, session
 from sqlalchemy.sql import exists
 from sqlalchemy.orm import relationship
+
 
 
 class User(Base):
@@ -10,9 +11,9 @@ class User(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     username = Column(String(100), unique=True, nullable=False)
     password = Column(String(100), nullable=False)
+    create_time = Column(DateTime, default=datetime.now)
+    is_local = Column(Boolean, default=False, nullable=False)
 
-    # create_time = Column(DateTime, default=datetime.now)
-    # email = Column(String(100))
 
     def __repr__(self):
         return "<User(#{}:{})".format(self.id, self.username)
@@ -40,13 +41,22 @@ class User(Base):
         return True
 
     @classmethod
-    def query_password(cls, username):
+    def update_login_status(cls, username):
         """
-        依据用户名获取对应的密码
-        :param username: 输入的用户名
-        :return: None or 对应密码 int
+        改变用户的登录状态，设为登录
+        :param username: 登录的用户名
         """
-        return session.query(User.password).filter_by(username=username).scalar()
+        session.query(User).filter(User.username == username).update({User.is_local: True})
+        session.commit()
+
+    @classmethod
+    def update_logout_status(cls, username):
+        """
+        改变用户的登录状态，设为下线
+        :param username: 登录的用户名
+        """
+        session.query(User).filter(User.username == username).update({User.is_local: False})
+        session.commit()
 
     @classmethod
     def query_User(cls, username):
@@ -57,15 +67,6 @@ class User(Base):
         """
         return session.query(User).filter_by(username=username).first()
 
-    @classmethod
-    def query_user_id(cls, username):
-        """
-        针对程序中总是出现需要用户id的情况，所以定义一个查询特定用户id的方法
-        :param username:当前登录的用户名
-        :return:对应的id
-        """
-        user_id = session.query(User.id).filter_by(username=username).scalar()
-        return user_id
 
 
 class PostPicture(Base):
@@ -75,6 +76,11 @@ class PostPicture(Base):
     image_url = Column(String(200), nullable=False)
     thumb_url = Column(String(200), nullable=False)
     upload_time = Column(DateTime, default=datetime.now)
+    is_delete = Column(Boolean, default=False, nullable=False)
+    good_num = Column(Integer, default=0, nullable=False)  # 点赞数
+    like_num = Column(Integer, default=0, nullable=False)  # 收藏数
+    content = Column(Text, nullable=False, default='')  # 内容
+    category = Column(String(50), default='', nullable=False)  # 分类
     user_id = Column(Integer, ForeignKey('users.id'))
 
     post_user = relationship('User', backref='post_pictures', uselist=False, cascade='all')
@@ -91,34 +97,75 @@ class PostPicture(Base):
         :param user_id: 用户id字段
         :return: None
         """
-        pictures = PostPicture(image_url=image_url, thumb_url=thumb_url, user_id=user_id)
+        pictures = PostPicture(image_url=image_url, thumb_url=thumb_url, user_id=user_id, )
         session.add(pictures)
         session.commit()
 
     @classmethod
-    def query_pictures_for_one(cls, user_id):
+    def query_pictures_for_one(cls, username):
         """
         查询用户已经上传的图片
         :param user_id:当前用户的id
         :return:包含大图和缩略图的元组，所有元组合成一个列表
         """
-        pictures_info = session.query(PostPicture.image_url, PostPicture.thumb_url).filter_by(user_id=user_id).all()
+        user = User.query_User(username)
+        pictures_info = session.query(PostPicture).filter(PostPicture.user_id == user.id,
+                                                          PostPicture.is_delete == False).all()
         return pictures_info
 
     @classmethod
-    def query_all_pictures(self):
+    def query_all_pictures(self, username):
         """
-        查询所有用户已经上传的图片
+        查询所有用户已经上传的图片,当未删除的图片
         :return: 所有查询出来的图像对象
         """
-        pictures_info = session.query(PostPicture).all()
+        user = User.query_User(username)
+        pictures_info = session.query(PostPicture).filter(PostPicture.is_delete == False,
+                                                          PostPicture.user_id != user.id).all()
         return pictures_info
 
     @classmethod
     def query_pictures_use_id(self, id):
         """
-        查询所有用户已经上传的图片
+        查询用户点击后的详情页图片
         :return: 所有查询出来的图像对象
         """
         pictures_info = session.query(PostPicture).filter_by(id=id).first()
         return pictures_info
+
+    @classmethod
+    def query_for_good_num(self):
+        """
+        依据用户的点赞数，来排序
+        :return: 对象
+        """
+        pictures_info = session.query(PostPicture).filter(PostPicture.is_delete == False).order_by(
+            desc(PostPicture.good_num)).limit(10).all()
+        return pictures_info
+
+
+class Like(Base):
+    __tablename__ = 'likes'
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    post_id = Column(Integer, ForeignKey('posts.id'), primary_key=True)
+    dot_like = Column(Boolean, default=True, nullable=False)
+
+    def __repr__(self):
+        return '<Like(用户id：{}--照片id{}--是否关注：{})'.format(self.user_id, self.post_id, self.dot_like)
+
+    @classmethod
+    def query_one_like(self, username):
+        """
+        查询用于收藏的所有图片,并去除自己上传的图片
+        :param username: 当前用户名
+        :return: 一个对象
+        """
+        user = User.query_User(username)
+        pictures_info = session.query(PostPicture).filter(Like.user_id == user.id,
+                                                          Like.post_id == PostPicture.id,
+                                                          user.id != PostPicture.id).all()
+        return pictures_info
+
+
+if __name__ == '__main__':
+    Base.metadata.create_all()
