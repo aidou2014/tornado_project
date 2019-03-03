@@ -7,16 +7,15 @@
 <div class="row">
 
     <div class="col-12 col-md-8 text-center">
-        <div><h4 class="text-muted">我的上传</h4></div>
+        <div><h4 class="text-muted">我的分享</h4></div>
         {% for p in posts %}
         <div class="col-5 col-sm-5 col-md-5 d-inline-block">
             <a href="/post/{{ p.id }}">
-                <img src="{{ static_url(p.image_url) }}" class="img-fluid"/>
+                <img src="{{ static_url(p.image_url) }}" id="{{ p.id }}" class="img-fluid"/>
             </a>
             <div class="text-center">
-                <span><a class="text-muted" href="#" name="good"><i
-                        class="fa fa-thumbs-up"></i>{{ p.good_num }}</a></span>
-                <span><a class="text-muted" href="#" name="like"><i class="fa fa-heart"></i>{{ p.like_num }}</a></span>
+                <span class="better"><i class="fa fa-thumbs-up"></i><span>{{ p.good_num }}</span></span>
+                <span class="collection"><i class="fa fa-heart"></i><span>{{ p.like_num }}</span></a></span>
             </div>
         </div>
         {% end %}
@@ -27,19 +26,19 @@
         {% for p in post_for_user %}
         <div class="col-5 col-sm-5 d-inline-block col-md-12">
             <a href="/post/{{ p.id }}">
-                <img src="{{ static_url(p.image_url) }}" class="img-fluid"/>
+                <img src="{{ static_url(p.image_url) }}" id="{{ p.id }}" class="img-fluid"/>
             </a>
             <div class="text-center">
                 <span><i class="fa fa-user" aria-hidden="true"></i>：{{ p.post_user.username }} </span>
-                <span><a class="text-muted" href="#" name="good"><i
-                        class="fa fa-thumbs-up"></i>{{ p.good_num }}</a></span>
-                <span><a class="text-muted" href="#" name="like"><i class="fa fa-heart"></i>{{ p.like_num }}</a></span>
+                <span class="better"><i class="fa fa-thumbs-up"></i><span>{{ p.good_num }}</span></span>
+                <span class="collection"><i class="fa fa-heart"></i><span>{{ p.like_num }}</span></span>
             </div>
         </div>
         {% end %}
     </div>
 
-
 </div>
-
+{% end %}
+{% block extra_js2 %}
+<script type="text/javascript" src="{{ static_url("js/gcd.js") }}"></script>
 {% end %}

@@ -3,6 +3,7 @@ from pycket.session import SessionMixin
 from utils.process_photo import UploadProcess
 from models.account import PostPicture, User, Like
 import random
+import json
 from utils.auth import show
 
 
@@ -93,3 +94,39 @@ class UserLikeHandler(AuthBaseHandler):
             upload_posts = PostPicture.query_pictures_for_one(name)
         like_posts = Like.query_one_like(name)
         self.render('like.html', posts=like_posts, name=name, upload_posts=upload_posts)
+
+
+class BetterHandler(AuthBaseHandler):
+
+    @tornado.web.authenticated
+    def get(self, *args, **kwargs):
+        id = self.get_argument('id', '')
+        flag = self.get_argument('flag', '')
+        count = PostPicture.update_post_good_num(id, flag)
+        self.write(str(count))
+
+
+class CollectionHandler(AuthBaseHandler):
+
+    @tornado.web.authenticated
+    def get(self, *args, **kwargs):
+        id = self.get_argument('id', '')
+        flag = self.get_argument('flag', '')
+        count = PostPicture.update_post_col_num(id, flag)
+        self.write(str(count))
+
+
+class DeleteHandler(AuthBaseHandler):
+
+    @tornado.web.authenticated
+    def get(self, *args, **kwargs):
+        id = self.get_argument('id', '')
+        result = PostPicture.delete_post(id)
+        if result:
+            data = {
+                "index_url": "http://120.78.90.247:8080/"
+            }
+            data = json.dumps(data)
+            self.write(data)
+        else:
+            pass  # 弹窗

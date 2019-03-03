@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}login page{% end %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_url('css/login.css') }}">
+{% end %}
+
+
+{% block dir %}
+{% end %}
+
+{% block content %}
+
+I am post page<br>
+
+<form method="post" action="/login" enctype="multipart/form-data">
+    <h2 class="form-signin-heading">Hi!欢迎登录账户</h2>
+    <input name="username" type="text" required="" placeholder="Username"><br>
+    <input name="password" type="password" required="" placeholder="Password"> <br>
+    <input name="next" type="hidden" value="{{ next_url }}">
+    <button>Login</button>
+    <button>还没账号，去<a href="/signup">注册</a>一个</button>
+
+</form>
+
+{% end %}
+
+{% block extra_js %}
+{% end %}

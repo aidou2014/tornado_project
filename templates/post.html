@@ -4,23 +4,41 @@
 
 {% block content %}
 
-<img src="{{ static_url(post.image_url) }}" class="img-fluid"/>
+<img id="{{ post.id }}" src="{{ static_url(post.image_url) }}" class="img-fluid"/>
 
 {% if current_user != post.post_user.username %}
 <p> 上传用户：<a href="/like?name={{ post.post_user.username }}">{{ post.post_user.username }}</a></p>
 {% else %}
 <p></p>
 {% end %}
+
 <p> 上传时间：{{ post.upload_time }} </p>
-<span><a class="text-muted" href="#" name="good"><i class="fa fa-thumbs-up"></i></a>{{ post.good_num }}</span>
-<span><a class="text-muted" href="#" name="like"><i class="fa fa-heart"></i></a>{{ post.like_num }}</span>
+<span class="better"><i class="fa fa-thumbs-up"></i><span>{{ post.good_num }}</span></span>
+<span class="collection"><i class="fa fa-heart"></i><span>{{ post.like_num }}</span></span>
 
 {% if current_user == post.post_user.username %}
-<span><a class="text-muted" href="#" name="like">删除</a></span>
+<span class="delete"><span>删除</span></span>
 {% else %}
 <span></span>
 {% end %}
 
-{#<button name="delete">删除</button>#}
+{% end %}
 
-<br>{% end %}
+<script type="text/javascript">
+    var img = document.querySelector('img')
+    var delete_button = document.querySelector('.delete')
+    var delete_url = "http://" + location.host + "/delete";
+    delete_button.onclick = function () {
+        let params = {id: img.id}
+        $.ajax({
+            type: "GET",
+            url: delete_url,
+            data: params,
+            dataType: "json",
+            success: function (data) {
+                console.log(data)
+                window.location.href = data.index_url
+            }
+        });
+    }
+</script>

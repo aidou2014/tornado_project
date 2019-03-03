@@ -3,21 +3,20 @@
 {% block title %}发现{% end %}
 
 {% block content %}
-<div class="row">
-    <div class="col-12 col-md-9 text-center ">
+<div class="row justify-content-center">
+    <div class="col-12 col-md-9 text-center">
         <div><h4 class="text-muted">发现图片</h4></div>
         {% for p in posts %}
         <div class="col-5 col-sm-5 col-md-3 d-inline-block">
             <a href="/post/{{ p.id }}">
-                <img class="img-fluid" src="{{ static_url(p.thumb_url) }}">
+                <img class="img-fluid" id="{{ p.id }}" src="{{ static_url(p.thumb_url) }}">
             </a>
-            <div>
+            <div style="width: 100%">
                 <span><i class="fa fa-user" aria-hidden="true"></i>：{{ p.post_user.username }} </span>
-                <span><a class="text-muted" href="#" name="good"><i
-                        class="fa fa-thumbs-up">{{ p.good_num }}</i></a></span>
-                <span><a class="text-muted" href="#" name="like"><i class="fa fa-heart">{{ p.like_num }}</i></a></span>
+                <span class="better"><i class="fa fa-thumbs-up"></i><span>{{ p.good_num }}</span></span>
+                <span class="collection"><i class="fa fa-heart"></i><span>{{ p.like_num }}</span></span>
             </div>
-            {#            <a href="#" class="btn btn-primary">Go somewhere</a>#}
+            <br>
         </div>
         {% end %}
     </div>
@@ -27,19 +26,19 @@
         {% for p in good_post %}
         <div class="col-5 col-sm-5 d-inline-block col-md-12">
             <a href="/post/{{ p.id }}">
-                <img class="img-fluid" src="{{ static_url(p.thumb_url) }}">
+                <img class="img-fluid" id="{{ p.id }}" src="{{ static_url(p.thumb_url) }}">
             </a>
             <div>
                 <span><i class="fa fa-user" aria-hidden="true"></i>：{{ p.post_user.username }} </span>
-                <span><a class="text-muted" href="#" name="good"><i
-                        class="fa fa-thumbs-up">{{ p.good_num }}</i></a></span>
-                <span><a class="text-muted" href="#" name="like"><i class="fa fa-heart">{{ p.like_num }}</i></a></span>
+                <span class="better"><i class="fa fa-thumbs-up"></i><span>{{ p.good_num }}</span></span>
+                <span class="collection"><i class="fa fa-heart"></i><span>{{ p.like_num }}</span></span>
             </div>
         </div>
-        {#            <a href="#" class="btn btn-primary">Go somewhere</a>#}
         {% end %}
     </div>
 
 </div>
-
+{% end %}
+{% block extra_js2 %}
+<script type="text/javascript" src="{{ static_url("js/gcd.js") }}"></script>
 {% end %}

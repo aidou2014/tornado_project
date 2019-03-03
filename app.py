@@ -4,7 +4,7 @@ import tornado.options
 from tornado import httpserver
 from tornado.options import define, options
 # from handlers.main import IndexHandler, ExploreHandler, PostHandler
-from handlers import main, authentication
+from handlers import main, authentication, chat
 
 define('port', default=8080, help='listen port', type=int)
 
@@ -16,10 +16,15 @@ class Application(tornado.web.Application):
             (r"/explore", main.ExploreHandler),
             (r"/upload", main.UploadHandler),
             (r"/like", main.UserLikeHandler),
+            (r"/better", main.BetterHandler),
+            (r"/collection", main.CollectionHandler),
+            (r"/delete", main.DeleteHandler),
             (r"/post/(?P<post_id>[0-9]+)", main.PostHandler),
             (r"/login", authentication.LoginHandler),
             (r"/logout", authentication.LogoutHandler),
             (r"/signup", authentication.SignupHandler),
+            (r"/room", chat.RoomHandler),
+            (r"/ws", chat.ChatWsHandler),
 
         ]
         settings = dict(

@@ -2,7 +2,6 @@
 
 {% block title %}我的收藏{% end %}
 
-
 {% block content %}
 {% if posts %}
 <div class="d-block">
@@ -12,12 +11,12 @@
     {% for p in posts %}
     <div class="col-5 col-sm-4 col-md-3 d-inline-block text-center">
         <a href="/post/{{ p.id }}">
-            <img class="img-fluid" src="{{ static_url(p.thumb_url) }}">
+            <img class="img-fluid" id="{{ p.id }}" src="{{ static_url(p.thumb_url) }}">
         </a>
         <div>
             <span><i class="fa fa-user" aria-hidden="true"></i>：{{ p.post_user.username }}</span>
-            <span><a class="text-muted" href="#" name="good"><i class="fa fa-thumbs-up">{{ p.good_num }}</i></a></span>
-            <span><a class="text-muted" href="#" name="like"><i class="fa fa-heart">{{ p.like_num }}</i></a></span>
+            <span class="better"><i class="fa fa-thumbs-up"></i><span>{{ p.good_num }}</span></span>
+            <span class="collection"><i class="fa fa-heart"></i><span>{{ p.like_num }}</span></span>
         </div>
     </div>
     {% end %}
@@ -34,18 +33,21 @@
     {% for p in upload_posts %}
     <div class="col-5 col-sm-4 col-md-3 d-inline-block text-center">
         <a href="/post/{{ p.id }}">
-            <img class="img-fluid" src="{{ static_url(p.thumb_url) }}">
+            <img class="img-fluid" id="{{ p.id }}" src="{{ static_url(p.thumb_url) }}">
         </a>
         <div>
             <span><i class="fa fa-user" aria-hidden="true"></i>：{{ p.post_user.username }}</span>
-            <span><a class="text-muted" href="#" name="good"><i class="fa fa-thumbs-up">{{ p.good_num }}</i></a></span>
-            <span><a class="text-muted" href="#" name="like"><i class="fa fa-heart">{{ p.like_num }}</i></a></span>
+            <span class="better"><i class="fa fa-thumbs-up"></i><span>{{ p.good_num }}</span></span>
+            <span class="collection"><i class="fa fa-heart"></i><span>{{ p.like_num }}</span></span>
         </div>
     </div>
     {% end %}
 </div>
 {% end %}
+<!--content-->
+{% end %}
 
-
+{% block extra_js2 %}
+<script type="text/javascript" src="{{ static_url("js/gcd.js") }}"></script>
 {% end %}
 

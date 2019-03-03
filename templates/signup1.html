@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}signup page{% end %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ static_url('css/login.css') }}">
+{% end %}
+
+{% block content %}
+
+I am signup  page<br>
+
+{% if msg %}
+<p>{{ msg }}</p>
+{% end %}
+
+<form action="/signup" enctype="multipart/form-data" method="post">
+    <h2 class="form-signin-heading">Hi!欢迎加入我们</h2>
+    <input name="username" type="text" required="" placeholder="Username"><br>
+    <input name="password1" type="password" required="" placeholder="Password"><br>
+    <input name="password2" type="password" required="" placeholder="Password confirmation"><br>
+    <button>注册</button>
+    <button>
+        已有账号请<a href="/login">登录</a>
+    </button>
+</form>
+
+{% end %}
+
+{% block extra_js %}
+{% end %}
+

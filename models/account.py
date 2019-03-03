@@ -143,6 +143,50 @@ class PostPicture(Base):
             desc(PostPicture.good_num)).limit(10).all()
         return pictures_info
 
+    @classmethod
+    def update_post_good_num(self, id, status):
+        """更改图片的点赞数
+        :id 图片的id
+        :status 是增加还是减小
+        :return: 一个新的int数据
+        """
+        old_good_num = PostPicture.query_pictures_use_id(id).good_num
+        if status:
+            new_good_num = old_good_num + 1
+        else:
+            new_good_num = old_good_num - 1
+        session.query(PostPicture).filter(PostPicture.id == id).update({PostPicture.good_num: new_good_num})
+        session.commit()
+        return new_good_num
+
+    @classmethod
+    def update_post_col_num(self, id, status):
+        """更改图片的收藏数
+        :id 图片的id
+        :status 是增加还是减小
+        :return: 一个新的int数据
+        """
+        old_good_num = PostPicture.query_pictures_use_id(id).like_num
+        if status:
+            new_good_num = old_good_num + 1
+        else:
+            new_good_num = old_good_num - 1
+        session.query(PostPicture).filter(PostPicture.id == id).update({PostPicture.like_num: new_good_num})
+        session.commit()
+        return new_good_num
+
+    @classmethod
+    def delete_post(self, id):
+        """更改图片的收藏数
+        :id 图片的id
+        :status 是增加还是减小
+        :return: 一个新的int数据
+        """
+        # pictures_info = PostPicture.query_pictures_use_id(id)
+        result = session.query(PostPicture).filter(PostPicture.id == id).update({PostPicture.is_delete: True})
+        session.commit()
+        return result
+
 
 class Like(Base):
     __tablename__ = 'likes'
@@ -165,6 +209,19 @@ class Like(Base):
                                                           Like.post_id == PostPicture.id,
                                                           user.id != PostPicture.id).all()
         return pictures_info
+
+    @classmethod
+    def like_verify(self, username):
+        """
+        判断用户时候已经收藏
+        :return:
+        """
+        user = User.query_User(username)
+        TF = session.query(Like.dot_like).filter(user.id == Like.user_id, Like.post_id == PostPicture.id).scalar()
+        return TF
+
+
+
 
 
 if __name__ == '__main__':
