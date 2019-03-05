@@ -1,24 +1,22 @@
-from tornado.websocket import WebSocketHandler
+import tornado.websocket
 import tornado.web
 from handlers.authentication import AuthBaseHandler
-import tornado.escape
 from pycket.session import SessionMixin
-import time
+import tornado.escape
+import uuid
 
 
 class RoomHandler(AuthBaseHandler):
     """处理聊天室的逻辑"""
 
-    @tornado.web.authenticated
     def get(self, *args, **kwargs):
-        self.render('room1.html')
+        self.render('room2.html', message=ChatWsHandler.history)
 
 
-class BaseWebsocketHandler(WebSocketHandler, SessionMixin):
+class BaseWebsocketHandler(tornado.websocket.WebSocketHandler, SessionMixin):
     """用于实现websocket通信"""
 
     def get_current_user(self):
-        # current_user = self.get_secure_cookie('user.ID')
         current_user = self.session.get('USER')
         if current_user:
             return current_user
@@ -35,17 +33,33 @@ class ChatWsHandler(BaseWebsocketHandler):
         """新的websocket连接打开，自动调用"""
         print('open ws {}'.format(self))
         ChatWsHandler.users.add(self)
-        for user in ChatWsHandler.users:
-            user.write_message('%s-%s上线了' % (self.current_user, time.strftime('%d-%m-%Y %H:%M:%S')))
 
     def on_close(self):
         """websocket断开时，自动调用"""
         print('close ws {}'.format(self))
         ChatWsHandler.users.remove(self)
-        for user in self.users:
-            user.write_message('%s-%s下线了' % (self.current_user, time.strftime('%d/%m/%Y %H:%M:%S')))
 
     def on_message(self, message):
         """服务器收到信息后，自动调用"""
+        print(message)
+        parsed = tornado.escape.json_decode(message)
+        print(repr(parsed))
+        chat = {
+            "id": str(uuid.uuid4()),
+            "body": parsed["body"]
+        }
+        print(repr(chat))
+        H = tornado.escape.to_basestring(
+            self.render_string('message.html', chat=chat))
+        messages_html = {
+            "html": H,
+            "id": chat["id"]
+        }
+        print(repr(messages_html))
+        ChatWsHandler.send_update(messages_html)
+
+    @classmethod
+    def send_update(cls, messages_html):
+        ChatWsHandler.history.append(messages_html)
         for user in ChatWsHandler.users:
-            user.write_message('%s-%s：%s' % (self.current_user, time.strftime('%d/%m/%Y %H:%M:%S'), message))
+            user.write_message(messages_html)

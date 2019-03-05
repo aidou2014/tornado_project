@@ -1,10 +1,12 @@
+import json
 import tornado.web
 from pycket.session import SessionMixin
 from utils.process_photo import UploadProcess
 from models.account import PostPicture, User, Like
 import random
-import json
-from utils.auth import show
+from utils.process_page import process_all_page, process_page_data, process_page_index
+from models.db import DBSession
+from utils.db_query import DBProcess
 
 
 class AuthBaseHandler(tornado.web.RequestHandler, SessionMixin):
@@ -16,16 +18,24 @@ class AuthBaseHandler(tornado.web.RequestHandler, SessionMixin):
             return current_user
         return None
 
+    def prepare(self):
+        self.db_session = DBSession()
+        self.db = DBProcess(self.db_session, self.current_user)
+
+    def on_finish(self):
+        self.db_session.close()
+
 
 class IndexHandler(AuthBaseHandler):
     """首页，说管子的用户图片流"""
 
     @tornado.web.authenticated
     def get(self):
-        posts = PostPicture.query_pictures_for_one(self.current_user)
-        post_for_user = PostPicture.query_all_pictures(self.current_user)
-        post_5 = random.sample(post_for_user, 6)
-        self.render('index.html', posts=posts, post_for_user=post_5)  # 返回所有列表
+        posts = self.db.query_pictures_for_one()
+        all_page, first_page = process_all_page(posts, 8)  # 每页八张
+        post_for_user = self.db.query_all_pictures()
+        post_4 = random.sample(post_for_user, 4)
+        self.render('index.html', posts=first_page, post_for_user=post_4, all_page=all_page)  # 返回所有列表
         # self.render('index.html', imgs=show(self.current_user))   # yield返回
 
 
@@ -34,9 +44,10 @@ class ExploreHandler(AuthBaseHandler):
 
     @tornado.web.authenticated
     def get(self):
-        posts = PostPicture.query_all_pictures(self.current_user)  # 列表内的元组
-        good_post = PostPicture.query_for_good_num()
-        self.render('explore.html', posts=posts, good_post=good_post)
+        posts = self.db.query_all_pictures()
+        all_page, page_post = process_all_page(posts, 24)  # 列表内的元组
+        good_post = self.db.query_for_good_num()
+        self.render('explore.html', posts=page_post, good_post=good_post, all_page=all_page)
 
 
 class PostHandler(AuthBaseHandler):
@@ -44,7 +55,7 @@ class PostHandler(AuthBaseHandler):
 
     @tornado.web.authenticated
     def get(self, post_id):
-        post = PostPicture.query_pictures_use_id(post_id)
+        post = self.db.query_pictures_use_id(post_id)
         self.render('post.html', post=post)
 
     @tornado.web.authenticated
@@ -64,6 +75,9 @@ class UploadHandler(AuthBaseHandler):
     @tornado.web.authenticated
     def post(self, *args, **kwargs):
         img_list = self.request.files.get('picture', [])
+        # online_img = self.get_argument('online','')
+        description = self.get_argument('text', '')
+        category = self.get_argument('Select1', '')
         # """存放文件的列表，每一个文件都是一个字典形式"""
         # 格式为{'filename': '1.jpg'，'body': b'\xff\xd8',content_type': 'image/jpeg'}
         # 格式为{'filename': 上传文件名称，'body': 文件二进制数据,content_type': 文件类型}
@@ -72,11 +86,10 @@ class UploadHandler(AuthBaseHandler):
                 upload_obj = UploadProcess(self.settings['static_path'], upload_img['filename'])
                 upload_obj.save_to_local(upload_img['body'])
                 upload_obj.make_thumb()
-
                 # 需要查询出user_id 是个问题
-                user = User.query_User(self.current_user)
-                PostPicture.post_pictures(upload_obj.make_image_url, upload_obj.make_thumb_url, user_id=user.id)
-
+                user = self.db.get_user()
+                self.db.post_pictures(upload_obj.make_image_url, upload_obj.make_thumb_url,
+                                      user_id=user.id, category=category, description=description)
             self.redirect('/')
         else:
             self.render('upload.html')
@@ -87,13 +100,16 @@ class UserLikeHandler(AuthBaseHandler):
     @tornado.web.authenticated
     def get(self, *args, **kwargs):
         name = self.get_argument('name', '')
-        if not name:
-            name = self.current_user
-            upload_posts = []
+        if name:
+            self.db.user = name
+            upload_posts = self.db.query_pictures_for_one()
         else:
-            upload_posts = PostPicture.query_pictures_for_one(name)
-        like_posts = Like.query_one_like(name)
-        self.render('like.html', posts=like_posts, name=name, upload_posts=upload_posts)
+            upload_posts = []
+        like_posts = self.db.query_one_like()
+        like_all_page, first_like_page = process_all_page(like_posts, 12)
+        upload_all_page, first_upload_page = process_all_page(upload_posts, 12)
+        self.render('like.html', posts=first_like_page, name=self.db.user, upload_posts=first_upload_page,
+                    like_all_page=like_all_page, uplaod_all_page=upload_all_page)
 
 
 class BetterHandler(AuthBaseHandler):
@@ -102,7 +118,7 @@ class BetterHandler(AuthBaseHandler):
     def get(self, *args, **kwargs):
         id = self.get_argument('id', '')
         flag = self.get_argument('flag', '')
-        count = PostPicture.update_post_good_num(id, flag)
+        count = self.db.update_post_good_num(id, flag)
         self.write(str(count))
 
 
@@ -112,7 +128,7 @@ class CollectionHandler(AuthBaseHandler):
     def get(self, *args, **kwargs):
         id = self.get_argument('id', '')
         flag = self.get_argument('flag', '')
-        count = PostPicture.update_post_col_num(id, flag)
+        count = self.db.update_post_col_num(id, flag)
         self.write(str(count))
 
 
@@ -121,12 +137,42 @@ class DeleteHandler(AuthBaseHandler):
     @tornado.web.authenticated
     def get(self, *args, **kwargs):
         id = self.get_argument('id', '')
-        result = PostPicture.delete_post(id)
+        result = self.db.delete_post(id)
         if result:
-            data = {
-                "index_url": "http://120.78.90.247:8080/"
-            }
+            data = {"index_url": "http://120.78.90.247/"}
             data = json.dumps(data)
             self.write(data)
         else:
             pass  # 弹窗
+
+
+class PageHandler(AuthBaseHandler):
+
+    @tornado.web.authenticated
+    def get(self, current, page):
+        if current == '/':
+            index_page_num = 8
+            page_post = self.db.page_div_for_index(page=int(page), num=index_page_num)
+            post_for_user = self.db.query_all_pictures()
+            post_4 = random.sample(post_for_user, 4)
+            page_data = process_page_index(page_post, post_4)
+            self.write(page_data)
+            # self.render('page.html', posts=page_post, post_for_user=post_4, all_page=int(all_page_1))  # 返回所有列表
+
+        elif current == '/explore':
+            index_page_num = 24
+            page_post = self.db.page_div_for_explore(page=int(page), num=index_page_num)
+            page_post_data = process_page_data(page_post)
+            self.write(page_post_data)
+            # self.render('explore.html', posts=page_post, good_post=good_post, all_page=all_page)
+
+        elif current == '/like':
+            index_page_num = 12
+            page_post = self.db.page_div_for_like(page=int(page), num=index_page_num)
+            page_post_data = process_page_data(page_post)
+            self.write(page_post_data)
+
+        else:
+            self.redirect('/')
+        # print(current)
+        # print(page)

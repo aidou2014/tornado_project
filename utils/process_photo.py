@@ -1,4 +1,3 @@
-import glob  # 图片展示
 import os
 from uuid import uuid4
 from PIL import Image
@@ -6,7 +5,7 @@ from PIL import Image
 
 class UploadProcess(object):
     UPLOAD_DIR = 'upload'
-    SIZE = (200, 200)
+    SIZE = (300, 300)
     THUMB_DIR = 'thumb'
 
     def __init__(self, static_path, filename):

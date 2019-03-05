@@ -3,11 +3,9 @@ import tornado.web
 import tornado.options
 from tornado import httpserver
 from tornado.options import define, options
-# from handlers.main import IndexHandler, ExploreHandler, PostHandler
-from handlers import main, authentication, chat
+from handlers import main, authentication, chat1
 
-define('port', default=8080, help='listen port', type=int)
-
+define('port', default=8010, help='listen port', type=int)
 
 class Application(tornado.web.Application):
     def __init__(self):
@@ -19,16 +17,17 @@ class Application(tornado.web.Application):
             (r"/better", main.BetterHandler),
             (r"/collection", main.CollectionHandler),
             (r"/delete", main.DeleteHandler),
+            (r"(?P<current>.*?)/page/(?P<page>[0-9]+)", main.PageHandler),
             (r"/post/(?P<post_id>[0-9]+)", main.PostHandler),
             (r"/login", authentication.LoginHandler),
             (r"/logout", authentication.LogoutHandler),
             (r"/signup", authentication.SignupHandler),
-            (r"/room", chat.RoomHandler),
-            (r"/ws", chat.ChatWsHandler),
+            (r"/room", chat1.RoomHandler),
+            (r"/ws", chat1.ChatWsHandler),
 
         ]
         settings = dict(
-            debug=True,
+            debug=False,
             template_path = 'templates',
             static_path = 'static',
             # static_url_prefix = '/pics/'

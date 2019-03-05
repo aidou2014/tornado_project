@@ -9,7 +9,7 @@
 </div>
 <div class="row justify-content-center">
     {% for p in posts %}
-    <div class="col-5 col-sm-4 col-md-3 d-inline-block text-center">
+    <div class="col-5 col-sm-4 col-md-2 d-inline-block text-center">
         <a href="/post/{{ p.id }}">
             <img class="img-fluid" id="{{ p.id }}" src="{{ static_url(p.thumb_url) }}">
         </a>
@@ -21,6 +21,24 @@
     </div>
     {% end %}
 </div>
+<ul class="pagination justify-content-end">
+    <li class="page-item">
+        <a class="page-link" href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+            <span class="sr-only">Previous</span>
+        </a>
+    </li>
+    {% for page in range(1, like_all_page + 1) %}
+    <li class="page-item" id="page{{ page }}"><span class="page-link">{{ page }}</span></li>
+    {% end %}
+    <li class="page-item">
+        <a class="page-link" href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Next</span>
+        </a>
+    </li>
+</ul>
+
 {% else %}
 
 {% end %}
@@ -31,7 +49,7 @@
 </div>
 <div class="row justify-content-center">
     {% for p in upload_posts %}
-    <div class="col-5 col-sm-4 col-md-3 d-inline-block text-center">
+    <div class="col-5 col-sm-4 col-md-2 d-inline-block text-center">
         <a href="/post/{{ p.id }}">
             <img class="img-fluid" id="{{ p.id }}" src="{{ static_url(p.thumb_url) }}">
         </a>
@@ -43,11 +61,95 @@
     </div>
     {% end %}
 </div>
+
+<ul class="pagination justify-content-end">
+    <li class="page-item">
+        <a class="page-link" href="#" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+            <span class="sr-only">Previous</span>
+        </a>
+    </li>
+    {% for page in range(1, uplaod_all_page + 1) %}
+    <li class="page-item" id="page{{ page }}"><span class="page-link">{{ page }}</span></li>
+    {% end %}
+    <li class="page-item">
+        <a class="page-link" href="#" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Next</span>
+        </a>
+    </li>
+</ul>
+{% else %}
 {% end %}
 <!--content-->
 {% end %}
 
 {% block extra_js2 %}
 <script type="text/javascript" src="{{ static_url("js/gcd.js") }}"></script>
+<script>
+    var
+        spans = document.querySelectorAll('li > span'), // 获取所有按钮
+        activeIndex = 0, //标记当前激活的按钮
+        per = document.querySelector('[aria-label="Previous"]') // 点击向前按钮
+    net = document.querySelector('[aria-label="Next"]') //点击向后按钮
+    console.log(spans)
+    console.log(per)
+    console.log(net)
+    spans[activeIndex].parentNode.className += ' active'  // 默认第一个按钮激活
+    net.onclick = () => {  // 点击向前按钮
+        spans[activeIndex].parentNode.className = 'page-item' // 关闭现在激活的按钮
+        activeIndex++                  // 将激活的按钮设置为当前按钮的下一位置
+        spans[activeIndex].parentNode.className += ' active'  // 激活按钮
+        request()
+    }
+
+    per.onclick = () => {  // 点击向后按钮
+        if (activeIndex !== 0) {   // 必须是激活的按钮大于0点击才有效果，因为按钮下标不能是负数
+            spans[activeIndex].parentNode.className = 'page-item'
+            activeIndex--
+            spans[activeIndex].parentNode.className += ' active'
+            request()
+        }
+    }
+
+    spans.forEach((v, i) => {
+        v.onclick = () => {
+            spans[activeIndex].parentNode.className = 'page-item'
+            console.log(this)
+            v.parentNode.className += ' active'  //激活当前点击的按钮
+            activeIndex = i
+            request()
+        }
+    })
+
+    function request() {
+        let params = {page: activeIndex + 1}   //因为下标从0 开始的，传的时候要加1
+        $.ajax({                   // 每次点击都执行一次ajax请求
+            type: "GET",           //请求的方法 是 get
+            url: window.location.href + "/page/" + params.page,    //这里写接口
+            {#data: params,    //请求的发送给后端的参数#}
+            dataType: "json",    // 数据类型是json
+            success: function (data) {   // 请求成功后执行这个方法
+                let content = document.querySelector('.row.justify-content-center'),
+                    html = ''
+                data.forEach(v => {
+                    html += `<div class="col-5 col-sm-4 col-md-2 d-inline-block text-center">
+                                <a href="/post/${v.id}">
+                                    <img class="img-fluid" id=${v.id} src="/static/${v.thumb_url}" >
+                                </a>
+                                <div>
+                                    <span><i class="fa fa-user" aria-hidden="true"></i>:${v.user} </span>
+                                    <span class="better"><i class="fa fa-thumbs-up"></i><span>${v.better}</span></span>
+                                    <span class="collection"><i class="fa fa-heart"></i><span>${v.collection}</span></span>
+                                </div>
+                            </div>`
+                })
+                content.innerHTML = html
+                {#window.location.href += "/page/" + params.page#}
+            }   // console.log(data)      // 打印出返回的数据
+        });
+    }
+</script>
+
 {% end %}
 

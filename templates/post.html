@@ -24,6 +24,11 @@
 
 {% end %}
 
+{% block page %}
+{% end %}
+
+{% block extra_js2 %}
+<script type="text/javascript" src="{{ static_url("js/gcd.js") }}"></script>
 <script type="text/javascript">
     var img = document.querySelector('img')
     var delete_button = document.querySelector('.delete')
@@ -42,3 +47,5 @@
         });
     }
 </script>
+{% end %}
+
